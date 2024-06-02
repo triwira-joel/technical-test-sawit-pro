@@ -6,9 +6,23 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	h "github.com/triwira-joel/technical-test-sawit-pro/helper"
 )
 
 func main() {
+	estate, success := ReadInput()
+	if !success {
+		// On input faulty, print "FAIL" to stderr and exit with status 1
+		fmt.Fprintln(os.Stderr, "FAIL")
+		os.Exit(1)
+	}
+	// On input correct, print the result to stdout and exit with status 0
+	output := CountDroneDistance(*estate)
+	fmt.Printf("%d\n", output)
+}
+
+func ReadInput() (*[][]int, bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	// reads user input until \n by default
@@ -17,38 +31,29 @@ func main() {
 	// Holds the string that was scanned
 	text := scanner.Text()
 
-	// handle error
-	if scanner.Err() != nil {
-		fmt.Println("Error: ", scanner.Err())
-	}
-
 	// separate the strings into array
 	input := strings.Fields(text)
 	// check if input is more then 3 number
 	if len(input) != 3 {
-		fmt.Fprintln(os.Stderr, "FAIL")
-		os.Exit(1)
+		return nil, false
 	}
 
 	// convert every input into int
 	width, err := strconv.Atoi(input[0])
 	// fail to convert or check if faulty inputs
 	if err != nil || width < 1 || width > 50000 {
-		fmt.Fprintln(os.Stderr, "FAIL")
-		os.Exit(1)
+		return nil, false
 	}
 	length, err := strconv.Atoi(input[1])
 	if err != nil || length < 1 || length > 50000 {
-		fmt.Fprintln(os.Stderr, "FAIL")
-		os.Exit(1)
+		return nil, false
 	}
 	count, err := strconv.Atoi(input[2])
 	if err != nil || count < 1 || count > 50000 {
-		fmt.Fprintln(os.Stderr, "FAIL")
-		os.Exit(1)
+		return nil, false
 	}
 
-	estate := createEstate(width, length)
+	estate := h.CreateEstate(width, length)
 
 	for i := 0; i < count; i++ {
 		// reads user input until \n by default
@@ -57,73 +62,37 @@ func main() {
 		// Holds the string that was scanned
 		text := scanner.Text()
 
-		// handle error
-		if scanner.Err() != nil {
-			fmt.Println("Error: ", scanner.Err())
-		}
-
 		// separate the strings into array
 		input := strings.Fields(text)
 		// check if input is more then 3 number
 		if len(input) != 3 {
-			fmt.Fprintln(os.Stderr, "FAIL")
-			os.Exit(1)
+			return nil, false
 		}
 
 		// convert every input into int
 		x, err := strconv.Atoi(input[0])
 		// fail to convert or faultyy inputs
 		if err != nil || x < 1 || x > width {
-			fmt.Fprintln(os.Stderr, "FAIL")
-			os.Exit(1)
+			return nil, false
 		}
 		y, err := strconv.Atoi(input[1])
 		if err != nil || y < 1 || y > length {
-			fmt.Fprintln(os.Stderr, "FAIL")
-			os.Exit(1)
+			return nil, false
 		}
 		height, err := strconv.Atoi(input[2])
 		if err != nil || height < 0 || height > 30 {
-			fmt.Fprintln(os.Stderr, "FAIL")
-			os.Exit(1)
+			return nil, false
 		}
 		// put tree height on estate(x,y)
 		estate[length-y][x-1] = height
 	}
-	fmt.Println(estate)
 
-	// fail := false
-	// if fail {
-	// 	// On input faulty, print "FAIL" to stderr and exit with status 1
-	// 	fmt.Fprintln(os.Stderr, "FAIL")
-	// 	os.Exit(1)
-	// }
-	// // On input correct, print the result to stdout and exit with status 0
-	// output := 8
-	// fmt.Printf("%d\n", output)
-
-	output := countDroneDistance(estate)
-	fmt.Printf("%d\n", output)
+	return &estate, true
 }
 
-func createEstate(width int, length int) [][]int {
-	// initiate a empty 2d array
-	estate := [][]int{}
-
-	for i := 0; i < length; i++ {
-		// we fill each row an array of 0s with the width size
-		l := make([]int, width)
-		// insert it into estate
-		estate = append(estate, l)
-	}
-
-	return estate
-}
-
-func countDroneDistance(estate [][]int) int {
-	// distance per plot
+func CountDroneDistance(estate [][]int) int {
 	distPerPlot := 10
-	// initiate drone position
+	// initiate drone position from southwest
 	row, column := len(estate)-1, 0
 	totalDistance := 0
 
@@ -152,13 +121,13 @@ func countDroneDistance(estate [][]int) int {
 				// check if current drone height is the same as next plot
 				if currDroneHeight != estate[row][column]+1 {
 					// we travel upward to ground/tree's height
-					diff := abs(currDroneHeight - (estate[row][column] + 1))
+					diff := h.Abs(currDroneHeight - (estate[row][column] + 1))
 					totalDistance = totalDistance + diff
 					currDroneHeight = estate[row][column] + 1
 				}
 
 			}
-		} else if column == len(estate[row]) {
+		} else {
 			// looping to go to west
 			for column >= 0 {
 				// if already at the end, break
@@ -172,7 +141,7 @@ func countDroneDistance(estate [][]int) int {
 				// check if current drone height is the same as next plot
 				if currDroneHeight != estate[row][column]+1 {
 					// we travel upward/downward to ground/tree's height
-					diff := abs(currDroneHeight - (estate[row][column] + 1))
+					diff := h.Abs(currDroneHeight - (estate[row][column] + 1))
 					totalDistance = totalDistance + diff
 					currDroneHeight = estate[row][column] + 1
 				}
@@ -187,8 +156,9 @@ func countDroneDistance(estate [][]int) int {
 		totalDistance = totalDistance + distPerPlot
 		if currDroneHeight != estate[row][column]+1 {
 			// we travel upward to ground/tree's height
-			diff := abs(currDroneHeight - (estate[row][column] + 1))
+			diff := h.Abs(currDroneHeight - (estate[row][column] + 1))
 			totalDistance = totalDistance + diff
+			currDroneHeight = estate[row][column] + 1
 		}
 	}
 
@@ -196,11 +166,4 @@ func countDroneDistance(estate [][]int) int {
 	totalDistance = totalDistance + currDroneHeight
 
 	return totalDistance
-}
-
-func abs(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
 }

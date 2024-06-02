@@ -2,4 +2,4 @@
 make init                      # Initializes 
 make                           # Builds the binary
 make test                      # Runs unit tests with coverage 
-./test.sh                      # Runs the test cases
+sudo bash ./test.sh                      # Runs the test cases
