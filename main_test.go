@@ -115,6 +115,18 @@ func TestReadInput(t *testing.T) {
 			want1: false,
 		},
 		{
+			name:  "Invalid number of inputs 3",
+			input: "10 10 4\n2 2",
+			want:  nil,
+			want1: false,
+		},
+		{
+			name:  "Invalid number of inputs 4",
+			input: "10 10 4\n2 2 3 3",
+			want:  nil,
+			want1: false,
+		},
+		{
 			name:  "Invalid width",
 			input: "0 10 2\n",
 			want:  nil,
@@ -129,6 +141,12 @@ func TestReadInput(t *testing.T) {
 		{
 			name:  "Invalid count",
 			input: "10 10 0\n",
+			want:  nil,
+			want1: false,
+		},
+		{
+			name:  "Invalid count 2",
+			input: "10 10 120\n",
 			want:  nil,
 			want1: false,
 		},

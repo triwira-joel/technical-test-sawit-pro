@@ -33,7 +33,7 @@ func ReadInput() (*[][]int, bool) {
 
 	// separate the strings into array
 	input := strings.Fields(text)
-	// check if input is more then 3 number
+	// check if input is more/less then 3 number
 	if len(input) != 3 {
 		return nil, false
 	}
@@ -49,7 +49,7 @@ func ReadInput() (*[][]int, bool) {
 		return nil, false
 	}
 	count, err := strconv.Atoi(input[2])
-	if err != nil || count < 1 || count > 50000 {
+	if err != nil || count < 1 || count > width*length {
 		return nil, false
 	}
 
@@ -64,7 +64,7 @@ func ReadInput() (*[][]int, bool) {
 
 		// separate the strings into array
 		input := strings.Fields(text)
-		// check if input is more then 3 number
+		// check if input is more/less then 3 number
 		if len(input) != 3 {
 			return nil, false
 		}
